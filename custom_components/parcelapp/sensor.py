@@ -61,7 +61,7 @@ class RecentShipment(SensorEntity):
                 if len(self._attr_name) > 20:
                     self._attr_name = f"{self._attr_name[:20]}..."
                 try:
-                    self._attr_state = "Delivery"
+                    self._attr_state = delivery["events"][0]["event"]
                     try:
                         event_date = delivery["events"][0]["date"]
                     except KeyError:
@@ -83,14 +83,12 @@ class RecentShipment(SensorEntity):
                 except KeyError:
                     date_expected = "Unknown"
 
-                self._hass_custom_attributes = {
-                    description: {
-                        "full_description": description,
-                        "tracking_number": delivery["tracking_number"],
-                        "date_expected": date_expected,
-                        "status_code": delivery["status_code"],
-                        "carrier_code": delivery["carrier_code"],
-                        "event_date": event_date,
-                        "event_location": event_location,
-                    }
+                self._hass_custom_attributes[description] = {
+                    "latest_event": delivery["events"][0]["event"],
+                    "tracking_number": delivery["tracking_number"],
+                    "date_expected": date_expected,
+                    "status_code": delivery["status_code"],
+                    "carrier_code": delivery["carrier_code"],
+                    "event_date": event_date,
+                    "event_location": event_location,
                 }
