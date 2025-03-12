@@ -56,10 +56,10 @@ class RecentShipment(SensorEntity):
         """Fetch the latest data from the coordinator."""
         await self.coordinator.async_request_refresh()
         if data := self.coordinator.data:
+            self._attr_name = "Deliveries"
             for delivery in data:
-                self._attr_name = delivery["description"]
-                if len(self._attr_name) > 20:
-                    self._attr_name = f"{self._attr_name[:20]}..."
+                # if len(self._attr_name) > 20:
+                #     self._attr_name = f"{self._attr_name[:20]}..."
                 try:
                     self._attr_state = delivery["events"][0]["event"]
                     try:
