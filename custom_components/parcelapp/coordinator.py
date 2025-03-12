@@ -1,6 +1,5 @@
 """Integration for Parcel tracking coordinator."""
 
-import json
 import logging
 from datetime import timedelta
 from typing import Any
@@ -41,10 +40,10 @@ class ParcelUpdateCoordinator(DataUpdateCoordinator):
             headers = {"api-key": self.api_key, "Content-Type": "application/json"}
             response = await self.session.get(API_URL, headers=headers)
             response.raise_for_status()
-            payload = await response.text()
+            payload = await response.json()
             try:
-                return json.loads(payload)["deliveries"]
+                return payload["deliveries"]
             except TypeError:
-                return json.loads(payload)
+                return payload
         except Exception as err:
             raise UpdateFailed(f"Error fetching data from API: {err}") from err
