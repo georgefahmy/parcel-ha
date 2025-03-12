@@ -5,7 +5,8 @@ from typing import Any
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, device_registry as dr
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 
 from .const import DOMAIN
 from .coordinator import ParcelConfigEntry, ParcelUpdateCoordinator
@@ -13,6 +14,7 @@ from .coordinator import ParcelConfigEntry, ParcelUpdateCoordinator
 PLATFORMS = [Platform.SENSOR]
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
+
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up the integration."""
@@ -61,7 +63,6 @@ async def async_update_entry(hass: HomeAssistant, config_entry: ParcelConfigEntr
 async def cleanup_old_device(hass: HomeAssistant) -> None:
     """Cleanup device without proper device identifier."""
     device_reg = dr.async_get(hass)
-    device = device_reg.async_get_device(identifiers={(DOMAIN,)})
-    if device:
+    if device := device_reg.async_get_device(identifiers={(DOMAIN,)}):
         _LOGGER.debug("Removing improper device %s", device.name)
         device_reg.async_remove_device(device.id)
