@@ -1,7 +1,7 @@
 """Integration for Parcel tracking sensor."""
 
-from datetime import timedelta
 import logging
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
@@ -17,6 +17,7 @@ PLATFORMS = [Platform.SENSOR]
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 SCAN_INTERVAL = timedelta(seconds=UPDATE_INTERVAL_SECONDS)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -34,7 +35,7 @@ class RecentShipment(SensorEntity):
     def __init__(self, coordinator: ParcelUpdateCoordinator) -> None:
         """Initialize the sensor."""
         self.coordinator = coordinator
-        self._hass_custom_attributes = {}
+        self._hass_custom_attributes = [{}]
         self._attr_name = "Recent Parcel Shipment"
         self._attr_unique_id = "Recent_Parcel_Shipment"
         self._globalid = "Recent_Parcel_Shipment"
@@ -54,12 +55,10 @@ class RecentShipment(SensorEntity):
     async def async_update(self) -> None:
         """Fetch the latest data from the coordinator."""
         await self.coordinator.async_request_refresh()
-        data = self.coordinator.data
-
-        if data:
+        if data := self.coordinator.data:
             self._attr_name = data[0]["description"]
             if len(self._attr_name) > 20:
-                self._attr_name = self._attr_name[:20] + "..."
+                self._attr_name = f"{self._attr_name[:20]}..."
             try:
                 self._attr_state = data[0]["events"][0]["event"]
                 try:
@@ -83,12 +82,14 @@ class RecentShipment(SensorEntity):
             except KeyError:
                 date_expected = "Unknown"
 
-            self._hass_custom_attributes = {
-                "full_description": description,
-                "tracking_number": data[0]["tracking_number"],
-                "date_expected": date_expected,
-                "status_code": data[0]["status_code"],
-                "carrier_code": data[0]["carrier_code"],
-                "event_date": event_date,
-                "event_location": event_location,
-            }
+            self._hass_custom_attributes.extend(
+                {
+                    "full_description": description,
+                    "tracking_number": data[0]["tracking_number"],
+                    "date_expected": date_expected,
+                    "status_code": data[0]["status_code"],
+                    "carrier_code": data[0]["carrier_code"],
+                    "event_date": event_date,
+                    "event_location": event_location,
+                }
+            )
