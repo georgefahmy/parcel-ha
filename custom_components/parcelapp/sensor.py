@@ -86,7 +86,7 @@ class RecentShipment(SensorEntity):
                 self._hass_custom_attributes[description] = {
                     "latest_event": delivery["events"][0]["event"],
                     "tracking_number": delivery["tracking_number"],
-                    "date_expected": date_expected,
+                    "date_expected": date_expected.split(" ")[0],
                     "status_code": delivery["status_code"],
                     "carrier_code": delivery["carrier_code"],
                     "event_date": event_date,
