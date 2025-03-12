@@ -35,7 +35,7 @@ class RecentShipment(SensorEntity):
     def __init__(self, coordinator: ParcelUpdateCoordinator) -> None:
         """Initialize the sensor."""
         self.coordinator = coordinator
-        self._hass_custom_attributes = []
+        self._hass_custom_attributes = {}
         self._attr_name = "Recent Parcel Shipment"
         self._attr_unique_id = "Recent_Parcel_Shipment"
         self._globalid = "Recent_Parcel_Shipment"
@@ -56,41 +56,40 @@ class RecentShipment(SensorEntity):
         """Fetch the latest data from the coordinator."""
         await self.coordinator.async_request_refresh()
         if data := self.coordinator.data:
-            for delivery in data:
-                self._attr_name = delivery["description"]
-                if len(self._attr_name) > 20:
-                    self._attr_name = f"{self._attr_name[:20]}..."
+            self._attr_name = data[0]["description"]
+            if len(self._attr_name) > 20:
+                self._attr_name = f"{self._attr_name[:20]}..."
+            try:
+                self._attr_state = data[0]["events"][0]["event"]
                 try:
-                    self._attr_state = "deliveries"
-                    try:
-                        event_date = ""
-                    except KeyError:
-                        event_date = "Unknown"
-                    try:
-                        event_location = ""
-                    except KeyError:
-                        event_location = "Unknown"
+                    event_date = data[0]["events"][0]["date"]
                 except KeyError:
-                    self._attr_state = "Unknown"
                     event_date = "Unknown"
+                try:
+                    event_location = data[0]["events"][0]["location"]
+                except KeyError:
                     event_location = "Unknown"
-                try:
-                    description = delivery["description"]
-                except KeyError:
-                    description = "Parcel"
-                try:
-                    date_expected = delivery["date_expected"]
-                except KeyError:
-                    date_expected = "Unknown"
+            except KeyError:
+                self._attr_state = "Unknown"
+                event_date = "Unknown"
+                event_location = "Unknown"
+            try:
+                description = data[0]["description"]
+            except KeyError:
+                description = "Parcel"
+            try:
+                date_expected = data[0]["date_expected"]
+            except KeyError:
+                date_expected = "Unknown"
 
-                self._hass_custom_attributes.append(
-                    {
-                        "full_description": description,
-                        "tracking_number": delivery["tracking_number"],
-                        "date_expected": date_expected,
-                        "status_code": delivery["status_code"],
-                        "carrier_code": delivery["carrier_code"],
-                        "event_date": event_date,
-                        "event_location": event_location,
-                    }
-                )
+            self._hass_custom_attributes = {
+                description: {
+                    "full_description": description,
+                    "tracking_number": data[0]["tracking_number"],
+                    "date_expected": date_expected,
+                    "status_code": data[0]["status_code"],
+                    "carrier_code": data[0]["carrier_code"],
+                    "event_date": event_date,
+                    "event_location": event_location,
+                }
+            }
