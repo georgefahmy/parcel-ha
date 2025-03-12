@@ -57,7 +57,7 @@ class RecentShipment(SensorEntity):
         await self.coordinator.async_request_refresh()
         if data := self.coordinator.data:
             self._attr_name = "Deliveries"
-            for delivery in data:
+            for i, delivery in enumerate(data):
                 # if len(self._attr_name) > 20:
                 #     self._attr_name = f"{self._attr_name[:20]}..."
                 try:
@@ -83,7 +83,8 @@ class RecentShipment(SensorEntity):
                 except KeyError:
                     date_expected = "Unknown"
 
-                self._hass_custom_attributes[description] = {
+                self._hass_custom_attributes[i] = {
+                    "description": description,
                     "latest_event": delivery["events"][0]["event"],
                     "tracking_number": delivery["tracking_number"],
                     "date_expected": date_expected.split(" ")[0],
