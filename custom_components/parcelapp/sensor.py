@@ -61,13 +61,13 @@ class RecentShipment(SensorEntity):
                 if len(self._attr_name) > 20:
                     self._attr_name = f"{self._attr_name[:20]}..."
                 try:
-                    self._attr_state = delivery["events"][0]["event"]
+                    self._attr_state = "deliveries"
                     try:
-                        event_date = delivery["events"][0]["date"]
+                        event_date = ""
                     except KeyError:
                         event_date = "Unknown"
                     try:
-                        event_location = delivery["events"][0]["location"]
+                        event_location = ""
                     except KeyError:
                         event_location = "Unknown"
                 except KeyError:
