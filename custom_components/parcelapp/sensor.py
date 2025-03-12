@@ -35,7 +35,7 @@ class RecentShipment(SensorEntity):
     def __init__(self, coordinator: ParcelUpdateCoordinator) -> None:
         """Initialize the sensor."""
         self.coordinator = coordinator
-        self._hass_custom_attributes = [{}]
+        self._hass_custom_attributes = []
         self._attr_name = "Recent Parcel Shipment"
         self._attr_unique_id = "Recent_Parcel_Shipment"
         self._globalid = "Recent_Parcel_Shipment"
@@ -82,7 +82,7 @@ class RecentShipment(SensorEntity):
             except KeyError:
                 date_expected = "Unknown"
 
-            self._hass_custom_attributes.extend(
+            self._hass_custom_attributes.append(
                 {
                     "full_description": description,
                     "tracking_number": data[0]["tracking_number"],
